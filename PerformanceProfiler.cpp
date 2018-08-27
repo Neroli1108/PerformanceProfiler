@@ -1,4 +1,5 @@
 #include "PerformanceProfiler.h"
+#include <iomanip>
 
 //helper function
 template <typename T>
@@ -24,6 +25,8 @@ FileManager::FileManager()
 }
 FileManager::~FileManager()
 {
+    delete srcFile;
+    delete dstFile;
     srcFile = NULL;
     dstFile = NULL;
     storeFiles.clear();
@@ -41,32 +44,69 @@ SummaryData &FileManager::getStoreSummaryData()
 
 void FileManager::recordSummaryData()
 {
+
     std::time_t t = std::time(0);
     std::tm *now = localtime(&t);
-    *dstFile << "Date " << ToString(now->tm_mon + 1) << "/" << ToString(now->tm_mday) << "/" << ToString(now->tm_year + 1900) << ",File:" << sd.dataName << ",SizeOfData: " << sd.size << std::endl;
-    *dstFile << "Stat Name,Target,Actual,Delta(%)" << std::endl;
-    *dstFile << "Frame Time(ms)," + ToString(TargetFrameTime) + "," + ToString(sd.ActualFrameTime) + "," + ToString((double)(sd.FrameTimeDelta * 100)) + "%" << std::endl;
+    *dstFile << "Date " << ToString(now->tm_mon + 1) << "/" << ToString(now->tm_mday) << "/" << ToString(now->tm_year + 1900) << "\t"
+             << "File:" << sd.dataName << "\t"
+             << "SizeOfData: " << sd.size << std::endl;
+    *dstFile << "Stat Name"
+             << "\t"
+             << "Target"
+             << "\t"
+             << "Actual"
+             << "\t"
+             << "Delta(%)" << std::endl;
+    *dstFile << "Frame Time(ms)"
+             << "\t" << ToString(TargetFrameTime) << "\t" << ToString(sd.ActualFrameTime) << "\t" << std::fixed << std::setprecision(2) << (sd.FrameTimeDelta * 100) << "%" << std::endl;
     if (sd.FrameTimeBound == "GPU Bound")
     {
-        *dstFile << " -Game Thread, ," + ToString(sd.ActualGameThread) + ", ," << std::endl;
-        *dstFile << " -Render Thread, ," + ToString(sd.ActualRenderThread) + ", ," << std::endl;
-        *dstFile << " -GPU, ," + ToString(sd.ActualGPU) + "," + sd.FrameTimeBound << std::endl;
+        *dstFile << " -Game Thread"
+                 << "\t"
+                 << "\t" << ToString(sd.ActualGameThread) << "\t"
+                 << "\t" << std::endl;
+        *dstFile << " -Render Thread"
+                 << "\t"
+                 << "\t" << ToString(sd.ActualRenderThread) << "\t"
+                 << "\t" << std::endl;
+        *dstFile << " -GPU"
+                 << "\t"
+                 << "\t" << ToString(sd.ActualGPU) << "\t" << sd.FrameTimeBound << std::endl;
     }
     else if (sd.FrameTimeBound == "Game Thread Bound")
     {
 
-        *dstFile << " -Game Thread, ," + ToString(sd.ActualGameThread) + "," + sd.FrameTimeBound << std::endl;
-        *dstFile << " -Render Thread, ," + ToString(sd.ActualRenderThread) + ", ," << std::endl;
-        *dstFile << " -GPU, ," + ToString(sd.ActualGPU) + ", ," << std::endl;
+        *dstFile << " -Game Thread"
+                 << "\t"
+                 << "\t" << ToString(sd.ActualGameThread) << "\t" << sd.FrameTimeBound << std::endl;
+        *dstFile << " -Render Thread"
+                 << "\t"
+                 << "\t" << ToString(sd.ActualRenderThread) << "\t"
+                 << "\t" << std::endl;
+        *dstFile << " -GPU"
+                 << "\t"
+                 << "\t" << ToString(sd.ActualGPU) << "\t"
+                 << "\t" << std::endl;
     }
     else
     {
-        *dstFile << " -Game Thread, ," + ToString(sd.ActualGameThread) + ", ," << std::endl;
-        *dstFile << " -Render Thread, ," + ToString(sd.ActualRenderThread) + "," + sd.FrameTimeBound << std::endl;
-        *dstFile << " -GPU, ," + ToString(sd.ActualGPU) + ", ," << std::endl;
+        *dstFile << " -Game Thread"
+                 << "\t"
+                 << "\t" << ToString(sd.ActualGameThread) << "\t"
+                 << "\t" << std::endl;
+        *dstFile << " -Render Thread"
+                 << "\t"
+                 << "\t" << ToString(sd.ActualRenderThread) << "\t" << sd.FrameTimeBound << std::endl;
+        *dstFile << " -GPU"
+                 << "\t"
+                 << "\t" << ToString(sd.ActualGPU) << "\t"
+                 << "\t" << std::endl;
     }
-    *dstFile << "Triangles Drawn," + ToString(TargetTriganlesDrawn) + "," + ToString(sd.ActualTrianglesDrawn) + "," + ToString((double)(sd.TrianglesDrawnDelta * 100)) + "%" << std::endl;
-    *dstFile << "Mesh Drawn Calls," + ToString(TargetMeshDrawCalls) + "," + ToString(sd.ActualMeshDrawCalls) + "," + ToString((double)(sd.MeshDrawCallsDelta * 100)) + "%" << std::endl;
+
+    *dstFile << "Triangles Drawn"
+             << "\t" << ToString(TargetTriganlesDrawn) << "\t" << ToString(sd.ActualTrianglesDrawn) << "\t" << std::fixed << std::setprecision(2) << (sd.TrianglesDrawnDelta * 100) << "%" << std::endl;
+    *dstFile << "Mesh Drawn Calls"
+             << "\t" << ToString(TargetMeshDrawCalls) << "\t" << ToString(sd.ActualMeshDrawCalls) << "\t" << std::fixed << std::setprecision(2) << (sd.MeshDrawCallsDelta * 100) << "%" << std::endl;
 }
 
 std::fstream *FileManager::getSrcFile()
